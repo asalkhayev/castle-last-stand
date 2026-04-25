@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Castle Last Stand</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-wrapper">
+    <canvas id="game" width="1280" height="720"></canvas>
+
+    <div id="menu" class="screen show main-menu-scene">
+      <button class="img-btn play-btn main-play" data-screen="how"></button>
+    </div>
+
+    <div id="how" class="screen how-scene">
+      <div class="how-text">
+        <h1>HOW TO PLAY</h1>
+        <p>WASD / ARROWS — MOVE</p>
+        <p>MOUSE CLICK / SPACE — ATTACK</p>
+        <p>SHIFT — DASH</p>
+        <p>Survive the siege. Choose your battle. Defeat the enemies.</p>
+      </div>
+      <button class="img-btn play-btn how-play" data-screen="levels"></button>
+    </div>
+
+    <div id="levels" class="screen level-scene">
+      <div class="level-scene-content">
+        <h1>CHOOSE BATTLE</h1>
+
+        <div class="level-grid">
+          <button class="level selected" data-level="0"><b>CASTLE</b><span>Golden fortress siege</span></button>
+          <button class="level" data-level="1"><b>FOREST</b><span>Haunted forest road</span></button>
+          <button class="level" data-level="2"><b>CRYPT</b><span>Undead tomb battle</span></button>
+        </div>
+
+        <div class="difficulty-box">
+          <h2>DIFFICULTY</h2>
+          <select id="difficulty">
+            <option value="0.85">EASY</option>
+            <option value="1" selected>NORMAL</option>
+            <option value="1.25">HARD</option>
+          </select>
+        </div>
+
+        <div class="scene-buttons">
+          <button class="img-btn back-btn" data-screen="how"></button>
+          <button class="img-btn play-btn" data-action="start"></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="pause" class="screen pause-scene">
+      <div class="scene-content small">
+        <h1>PAUSED</h1>
+        <button class="img-btn resume-btn" data-action="resume"></button>
+        <button class="img-btn mainmenu-btn" data-screen="menu"></button>
+      </div>
+    </div>
+
+    <div id="end" class="screen gameover-scene">
+      <div class="gameover-content">
+        <h1 id="endTitle">GAME OVER</h1>
+        <p id="endText"></p>
+        <button class="img-btn restart-btn" data-action="restart"></button>
+        <button class="img-btn mainmenu-btn" data-screen="menu"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

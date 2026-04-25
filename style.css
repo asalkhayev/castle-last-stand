@@ -1,0 +1,84 @@
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#050302;color:#ead8aa;font-family:Georgia,"Times New Roman",serif}
+#game-wrapper{position:relative;width:100vw;height:100vh;background:#050302}
+#game{display:block;width:100vw;height:100vh;background:#050302}
+
+.screen{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background-size:cover;background-position:center;background-repeat:no-repeat}
+.screen.show{display:flex}
+
+/* MAIN MENU — exact path from your screenshot */
+.main-menu-scene{
+  background-image:url("assets/background/BACKGROUND MAIN.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+.main-play{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);filter:drop-shadow(0 0 18px rgba(255,190,80,.45))}
+.main-play:hover{transform:translateX(-50%) scale(1.06);filter:brightness(1.18) drop-shadow(0 0 26px rgba(255,190,80,.65))}
+
+/* HOW TO PLAY */
+.how-scene{
+  background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.28),rgba(0,0,0,.72)),url("assets/background/BACKGROUND MAIN.png");
+  background-size:cover;
+  background-position:center;
+}
+.how-text{position:absolute;top:95px;left:50%;transform:translateX(-50%);width:min(760px,88vw);text-align:center;padding:28px 36px;background:rgba(5,3,2,.58);border:2px solid rgba(180,125,50,.65);box-shadow:0 0 35px #000,inset 0 0 28px rgba(0,0,0,.8)}
+.how-text h1{margin:0 0 22px;font-size:48px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 8px #000}
+.how-text p{margin:12px 0;font-size:23px;color:#f1ddb0;text-shadow:0 3px 5px #000}
+.how-play{position:absolute;left:50%;bottom:64px;transform:translateX(-50%)}
+.how-play:hover{transform:translateX(-50%) scale(1.06)}
+
+/* LEVELS */
+.level-scene{
+  background:linear-gradient(rgba(0,0,0,.34),rgba(0,0,0,.76)),url("assets/bakground levels/level1-castle.png");
+  background-size:cover;
+  background-position:center;
+}
+.level-scene-content{width:min(1100px,94vw);min-height:630px;text-align:center;padding:34px 48px;background:rgba(5,3,2,.58);border:2px solid rgba(184,126,49,.75);box-shadow:0 0 50px #000,inset 0 0 35px rgba(0,0,0,.8)}
+.level-scene-content h1{margin:0 0 26px;font-size:48px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 8px #000}
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:20px auto 26px}
+.level{height:235px;border:2px solid #a77d3c;color:#ffe0a0;font-family:Georgia,"Times New Roman",serif;font-size:28px;cursor:pointer;text-shadow:0 3px 5px #000;box-shadow:inset 0 0 36px #000,0 0 22px #000;transition:.16s;background:linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.72)),url("assets/bakground levels/level1-castle.png");background-size:cover;background-position:center}
+.level:nth-child(2){background-image:linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.72)),url("assets/bakground levels/level2-forest.png")}
+.level:nth-child(3){background-image:linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.72)),url("assets/bakground levels/level3-crypt.png")}
+.level span{display:block;margin-top:10px;font-size:16px;color:#ead8aa}
+.level:hover,.level.selected{transform:translateY(-7px) scale(1.035);filter:brightness(1.24);border-color:#f0bd64;box-shadow:inset 0 0 36px #000,0 0 30px rgba(255,180,70,.75)}
+.difficulty-box{display:inline-block;padding:16px 38px;margin:4px auto 10px;background:rgba(0,0,0,.62);border:1px solid #a77d3c}
+.difficulty-box h2{margin:0 0 10px;color:#f6d99b;letter-spacing:3px}
+.difficulty-box select{background:#130b06;color:#f6d99b;border:1px solid #c49346;padding:9px 22px;font-size:20px;font-family:Georgia,"Times New Roman",serif}
+.scene-buttons{display:flex;justify-content:center;align-items:center;gap:28px;margin-top:18px;flex-wrap:wrap}
+
+/* GAME OVER — exact path from your screenshot */
+.gameover-scene{
+  background:linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.72)),url("assets/background/BACKGROUND GAME OVER.PNG");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+.gameover-content{width:min(620px,88vw);min-height:420px;text-align:center;padding:42px 46px;background:rgba(0,0,0,.42);border:2px solid rgba(190,135,60,.65);box-shadow:0 0 55px #000,inset 0 0 30px rgba(0,0,0,.7)}
+.gameover-content h1{margin:0 0 20px;font-size:56px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 10px #000,0 0 18px rgba(255,120,60,.55)}
+.gameover-content p{font-size:24px;color:#f1ddb0;text-shadow:0 3px 6px #000}
+
+.pause-scene{background:rgba(0,0,0,.62)}
+.scene-content{width:min(540px,88vw);padding:38px 44px;text-align:center;background:rgba(5,3,2,.78);border:2px solid #8a642e;box-shadow:0 0 50px #000,inset 0 0 35px #000}
+.scene-content h1{margin:0 0 24px;font-size:46px;color:#f6d99b}
+
+.img-btn{width:290px;height:72px;border:none;outline:none;background-color:transparent;background-position:center;background-size:100% 100%;background-repeat:no-repeat;cursor:pointer;color:transparent;font-size:0;transition:.16s}
+.img-btn:hover{filter:brightness(1.22) saturate(1.12)}
+.img-btn:active{filter:brightness(.9)}
+
+.play-btn{background-image:url("assets/buttons/PLAY.PNG")}
+.resume-btn{background-image:url("assets/buttons/RESUME.PNG")}
+.back-btn{background-image:url("assets/buttons/BACK.PNG")}
+.restart-btn{background-image:url("assets/buttons/RESTART.PNG")}
+.mainmenu-btn{background-image:url("assets/buttons/MAIN MENU.PNG")}
+
+@media(max-width:850px){
+  .img-btn{width:235px;height:58px}
+  .level-grid{grid-template-columns:1fr}
+  .level{height:120px}
+  .level-scene-content{min-height:auto;padding:24px}
+  .how-text{top:50px}
+  .how-text h1{font-size:36px}
+  .how-text p{font-size:18px}
+}
