@@ -10,31 +10,41 @@
   <div id="game-wrapper">
     <canvas id="game" width="1280" height="720"></canvas>
 
+    <!-- MAIN MENU -->
     <div id="menu" class="screen show main-menu-scene">
-      <button class="img-btn play-btn main-play" data-screen="how"></button>
+      <button class="icon-btn" id="menu-settings-btn" data-screen="settings" title="Settings">
+        <img src="assets/buttons/SETTINGS_ICON.PNG" alt="Settings">
+      </button>
+      <div class="main-buttons">
+        <button class="img-btn play-btn main-play" data-screen="how"></button>
+        <button class="img-btn credits-btn" data-screen="credits"></button>
+      </div>
     </div>
 
+    <!-- HOW TO PLAY -->
     <div id="how" class="screen how-scene">
       <div class="how-text">
         <h1>HOW TO PLAY</h1>
         <p>WASD / ARROWS — MOVE</p>
         <p>MOUSE CLICK / SPACE — ATTACK</p>
-        <p>SHIFT — DASH</p>
+        <p>SHIFT — SHOCKWAVE</p>
         <p>Survive the siege. Choose your battle. Defeat the enemies.</p>
       </div>
-      <button class="img-btn play-btn how-play" data-screen="levels"></button>
+      <div class="how-buttons">
+        <button class="img-btn play-btn how-play" data-screen="levels"></button>
+        <button class="img-btn back-btn" data-screen="menu"></button>
+      </div>
     </div>
 
+    <!-- LEVEL SELECT -->
     <div id="levels" class="screen level-scene">
       <div class="level-scene-content">
         <h1>CHOOSE BATTLE</h1>
-
         <div class="level-grid">
           <button class="level selected" data-level="0"><b>CASTLE</b><span>Golden fortress siege</span></button>
           <button class="level" data-level="1"><b>FOREST</b><span>Haunted forest road</span></button>
           <button class="level" data-level="2"><b>CRYPT</b><span>Undead tomb battle</span></button>
         </div>
-
         <div class="difficulty-box">
           <h2>DIFFICULTY</h2>
           <select id="difficulty">
@@ -43,7 +53,6 @@
             <option value="1.25">HARD</option>
           </select>
         </div>
-
         <div class="scene-buttons">
           <button class="img-btn back-btn" data-screen="how"></button>
           <button class="img-btn play-btn" data-action="start"></button>
@@ -51,14 +60,22 @@
       </div>
     </div>
 
+    <!-- IN-GAME PAUSE BUTTON -->
+    <button class="icon-btn" id="game-pause-btn" data-action="pause" title="Pause">
+      <img src="assets/buttons/PAUSE_ICON.PNG" alt="Pause">
+    </button>
+
+    <!-- PAUSE SCREEN -->
     <div id="pause" class="screen pause-scene">
-      <div class="scene-content small">
+      <div class="pause-panel">
         <h1>PAUSED</h1>
         <button class="img-btn resume-btn" data-action="resume"></button>
         <button class="img-btn mainmenu-btn" data-screen="menu"></button>
+        <button class="img-btn settings-btn" data-screen="settings"></button>
       </div>
     </div>
 
+    <!-- GAME OVER -->
     <div id="end" class="screen gameover-scene">
       <div class="gameover-content">
         <h1 id="endTitle">GAME OVER</h1>
@@ -67,8 +84,86 @@
         <button class="img-btn mainmenu-btn" data-screen="menu"></button>
       </div>
     </div>
-  </div>
 
+    <!-- SETTINGS SCREEN -->
+    <div id="settings" class="screen how-scene">
+      <div class="settings-panel">
+        <h1>SETTINGS</h1>
+
+        <div class="setting-row">
+          <label>MUSIC</label>
+          <div class="slider-track">
+            <input type="range" id="music-vol" min="0" max="100" value="80">
+            <span class="slider-val" id="music-vol-display">80</span>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>SFX</label>
+          <div class="slider-track">
+            <input type="range" id="sfx-vol" min="0" max="100" value="100">
+            <span class="slider-val" id="sfx-vol-display">100</span>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>BRIGHTNESS</label>
+          <div class="slider-track">
+            <input type="range" id="brightness-val" min="50" max="150" value="100">
+            <span class="slider-val" id="brightness-display">100</span>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>PARTICLES</label>
+          <div class="toggle-wrap">
+            <button class="toggle-btn active" id="particles-toggle">ON</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>FULLSCREEN</label>
+          <div class="toggle-wrap">
+            <button class="toggle-btn" id="fullscreen-toggle">OFF</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>DIFFICULTY</label>
+          <div class="toggle-wrap diff-cycle">
+            <button class="toggle-btn active" id="diff-toggle">NORMAL</button>
+          </div>
+        </div>
+
+        <div class="settings-footer">
+          <button class="img-btn back-btn" id="settings-back-btn"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREDITS SCREEN -->
+    <div id="credits" class="screen how-scene">
+      <div class="credits-panel">
+        <div class="credits-emblem">⚔</div>
+        <h1 class="credits-title">CASTLE LAST STAND</h1>
+        <p class="credits-sub">An Entry for <span class="credits-gold">Press Play 2026</span></p>
+
+        <div class="credits-divider"></div>
+
+        <div class="credits-block">
+          <p class="credits-role">Forged in Blood &amp; Code by</p>
+          <p class="credits-name">Team-15</p>
+        </div>
+
+        <div class="credits-divider"></div>
+        <p class="credits-year">Press Play 2026 &nbsp;·&nbsp; All rights reserved</p>
+
+        <button class="img-btn back-btn credits-back" data-screen="menu"></button>
+      </div>
+    </div>
+
+  </div>
+  <div id="brightness-overlay" style="position:fixed;inset:0;z-index:99;pointer-events:none;background:rgba(0,0,0,0);transition:background .2s"></div>
   <script src="game.js"></script>
 </body>
 </html>

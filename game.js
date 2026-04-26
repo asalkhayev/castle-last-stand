@@ -34,13 +34,14 @@ function resetGame(){
   enemies=[];particles=[];score=0;wave=1;spawnTimer=0;attackTimer=0;dashTimer=0;stamina=100;
 }
 function hideScreens(){screens.forEach(s=>s.classList.remove("show"))}
-function showScreen(id){hideScreens();const el=document.getElementById(id);if(el)el.classList.add("show");if(id==="menu")gameState="menu"}
-function startGame(){resetGame();gameState="playing";hideScreens()}
-function pauseGame(){if(gameState==="playing"){gameState="pause";showScreen("pause")}}
-function resumeGame(){gameState="playing";hideScreens()}
-function endGame(win=false){gameState="end";document.getElementById("endTitle").textContent=win?"VICTORY":"GAME OVER";document.getElementById("endText").textContent=`Score: ${score} | Wave: ${wave}`;showScreen("end")}
+function showScreen(id){hideScreens();const el=document.getElementById(id);if(el)el.classList.add("show");if(id==="menu")gameState="menu";updatePauseBtn()}
+function updatePauseBtn(){const btn=document.getElementById("game-pause-btn");if(btn)btn.classList.toggle("visible",gameState==="playing")}
+function startGame(){resetGame();gameState="playing";hideScreens();updatePauseBtn()}
+function pauseGame(){if(gameState==="playing"){gameState="pause";showScreen("pause");updatePauseBtn()}}
+function resumeGame(){gameState="playing";hideScreens();updatePauseBtn()}
+function endGame(win=false){gameState="end";document.getElementById("endTitle").textContent=win?"VICTORY":"GAME OVER";document.getElementById("endText").textContent=`Score: ${score} | Wave: ${wave}`;showScreen("end");updatePauseBtn()}
 
-document.addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key==="Escape"){if(gameState==="playing")pauseGame();else if(gameState==="pause")resumeGame()}if(e.code==="Space")attack()});
+document.addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key==="Escape"){if(gameState==="playing")pauseGame();else if(gameState==="pause")resumeGame()}if(e.code==="Space"){attack();stamina=Math.max(0,stamina-15);}if(e.key==="Shift"){shockwave();}});
 document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener("mousemove",e=>{const r=canvas.getBoundingClientRect();mouse.x=(e.clientX-r.left)*(canvas.width/r.width);mouse.y=(e.clientY-r.top)*(canvas.height/r.height)});
 canvas.addEventListener("mousedown",attack);
@@ -51,7 +52,12 @@ document.addEventListener("click",e=>{
   if(action==="start")startGame();
   if(action==="resume")resumeGame();
   if(action==="restart")startGame();
+  if(action==="pause")pauseGame();
+  if(b.id==="settings-back-btn"){if(gameState==="pause")showScreen("pause");else showScreen("menu");return;}
   if(screen)showScreen(screen);
+  if(b.id==="particles-toggle"){particlesOn=!particlesOn;b.textContent=particlesOn?"ON":"OFF";b.classList.toggle("active",particlesOn)}
+  if(b.id==="fullscreen-toggle"){if(!document.fullscreenElement){document.documentElement.requestFullscreen();b.textContent="ON";b.classList.add("active")}else{document.exitFullscreen();b.textContent="OFF";b.classList.remove("active")}}
+  if(b.id==="diff-toggle"){const vals=["EASY","NORMAL","HARD"];const speeds=[0.85,1,1.25];let idx=vals.indexOf(b.textContent)+1;if(idx>=vals.length)idx=0;b.textContent=vals[idx];difficulty=speeds[idx];}
   if(level!==undefined){
     currentLevel=Number(level);
     document.querySelectorAll(".level").forEach(btn=>btn.classList.remove("selected"));
@@ -62,6 +68,22 @@ document.addEventListener("click",e=>{
 
 const difficultySelect=document.getElementById("difficulty");
 if(difficultySelect)difficultySelect.addEventListener("change",()=>difficulty=Number(difficultySelect.value));
+
+// Settings sliders
+const musicVol=document.getElementById("music-vol");
+const sfxVol=document.getElementById("sfx-vol");
+const brightnessSlider=document.getElementById("brightness-val");
+if(musicVol)musicVol.addEventListener("input",()=>{document.getElementById("music-vol-display").textContent=musicVol.value});
+if(sfxVol)sfxVol.addEventListener("input",()=>{document.getElementById("sfx-vol-display").textContent=sfxVol.value});
+if(brightnessSlider)brightnessSlider.addEventListener("input",()=>{
+  const v=Number(brightnessSlider.value);
+  document.getElementById("brightness-display").textContent=v;
+  const overlay=document.getElementById("brightness-overlay");
+  if(overlay){
+    if(v<100){overlay.style.background=`rgba(0,0,0,${((100-v)/100)*0.6})`}
+    else{overlay.style.background=`rgba(255,220,100,${((v-100)/100)*0.18})`}
+  }
+});
 
 function attack(){
   if(gameState!=="playing"||attackTimer>0)return;
@@ -74,9 +96,17 @@ function attack(){
   });
   enemies=enemies.filter(e=>!e.dead);
 }
+function shockwave(){
+  if(gameState!=="playing"||stamina<50)return;
+  stamina=Math.max(0,stamina-50);
+  enemies.forEach(en=>{score+=10;createSparks(en.x,en.y,22);en.dead=true});
+  enemies=[];
+  createSparks(player.x,player.y,30);
+}
 function update(dt){
   if(gameState!=="playing")return;
-  attackTimer-=dt;dashTimer-=dt;player.invincible-=dt;stamina=Math.min(100,stamina+dt*22);
+  attackTimer-=dt;dashTimer-=dt;player.invincible-=dt;
+  if(dashTimer<=0)stamina=Math.min(100,stamina+dt*18);
   movePlayer(dt);dash();
   spawnTimer-=dt;if(spawnTimer<=0){spawnEnemy();spawnTimer=Math.max(.4,1.25-wave*.05)/difficulty}
   updateEnemies(dt);updateParticles(dt);
@@ -92,11 +122,7 @@ function movePlayer(dt){
   player.x=clamp(player.x,45,canvas.width-45);player.y=clamp(player.y,60,canvas.height-45);
 }
 function dash(){
-  if(dashTimer>0||!keys.shift||stamina<30)return;
-  let dx=0,dy=0;
-  if(keys.w||keys.arrowup)dy--;if(keys.s||keys.arrowdown)dy++;if(keys.a||keys.arrowleft)dx--;if(keys.d||keys.arrowright)dx++;
-  const l=Math.hypot(dx,dy);if(!l)return;
-  player.x+=dx/l*150;player.y+=dy/l*150;stamina-=30;dashTimer=.45;createSparks(player.x,player.y,8);
+  // Dash removed from shift (shift now triggers shockwave); kept as stub
 }
 function spawnEnemy(){
   const side=Math.floor(Math.random()*4);let x,y;

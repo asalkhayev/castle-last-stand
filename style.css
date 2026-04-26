@@ -6,28 +6,39 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 .screen{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background-size:cover;background-position:center;background-repeat:no-repeat}
 .screen.show{display:flex}
 
-/* MAIN MENU — exact path from your screenshot */
+/* MAIN MENU */
 .main-menu-scene{
-  background-image:url("assets/background/BACKGROUND MAIN.png");
+  background-image:url("assets/background/main-bg.png");
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
 }
 
-.main-play{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);filter:drop-shadow(0 0 18px rgba(255,190,80,.45))}
-.main-play:hover{transform:translateX(-50%) scale(1.06);filter:brightness(1.18) drop-shadow(0 0 26px rgba(255,190,80,.65))}
+.main-buttons{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px}
+.main-play{filter:drop-shadow(0 0 18px rgba(255,190,80,.45))}
+.main-play:hover{filter:brightness(1.18) drop-shadow(0 0 26px rgba(255,190,80,.65))}
+.credits-btn{background-image:url("assets/buttons/CREDITS.PNG")}
+
+/* ICON BUTTONS — settings on menu, pause during game */
+.icon-btn{position:fixed;top:18px;right:22px;z-index:30;width:64px;height:64px;border:none;outline:none;background:transparent;cursor:pointer;padding:0}
+.icon-btn img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(200,140,30,.7));transition:.18s}
+.icon-btn:hover img{filter:drop-shadow(0 0 18px rgba(255,200,60,1)) brightness(1.15);transform:scale(1.1)}
+.icon-btn:active img{transform:scale(0.94)}
+#game-pause-btn{display:none}
+#game-pause-btn.visible{display:block}
 
 /* HOW TO PLAY */
 .how-scene{
-  background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(0,0,0,.28),rgba(0,0,0,.72)),url("assets/background/BACKGROUND MAIN.png");
-  background-size:cover;
+  background:linear-gradient(rgba(0,0,0,.78),rgba(0,0,0,.78)),url("assets/background/main-bg.png");
+  background-size:75%;
   background-position:center;
+  background-repeat:no-repeat;
 }
 .how-text{position:absolute;top:95px;left:50%;transform:translateX(-50%);width:min(760px,88vw);text-align:center;padding:28px 36px;background:rgba(5,3,2,.58);border:2px solid rgba(180,125,50,.65);box-shadow:0 0 35px #000,inset 0 0 28px rgba(0,0,0,.8)}
 .how-text h1{margin:0 0 22px;font-size:48px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 8px #000}
 .how-text p{margin:12px 0;font-size:23px;color:#f1ddb0;text-shadow:0 3px 5px #000}
-.how-play{position:absolute;left:50%;bottom:64px;transform:translateX(-50%)}
-.how-play:hover{transform:translateX(-50%) scale(1.06)}
+.how-buttons{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:14px}
+.how-play:hover{filter:brightness(1.18) drop-shadow(0 0 26px rgba(255,190,80,.65))}
 
 /* LEVELS */
 .level-scene{
@@ -59,9 +70,42 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 .gameover-content h1{margin:0 0 20px;font-size:56px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 10px #000,0 0 18px rgba(255,120,60,.55)}
 .gameover-content p{font-size:24px;color:#f1ddb0;text-shadow:0 3px 6px #000}
 
-.pause-scene{background:rgba(0,0,0,.62)}
+/* PAUSE SCENE */
+.pause-scene{background:rgba(0,0,0,.72)}
+.pause-panel{display:flex;flex-direction:column;align-items:center;gap:16px;padding:42px 56px;background:rgba(5,3,2,.90);border:2px solid #9b743d;box-shadow:0 0 60px #000,inset 0 0 40px rgba(0,0,0,.9)}
+.pause-panel h1{margin:0 0 10px;font-size:46px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 8px #000}
+.settings-btn{background-image:url("assets/buttons/SETTINGS.PNG")}
+
 .scene-content{width:min(540px,88vw);padding:38px 44px;text-align:center;background:rgba(5,3,2,.78);border:2px solid #8a642e;box-shadow:0 0 50px #000,inset 0 0 35px #000}
 .scene-content h1{margin:0 0 24px;font-size:46px;color:#f6d99b}
+
+/* SETTINGS PANEL */
+.settings-panel{width:min(680px,90vw);padding:38px 52px 32px;background:rgba(5,3,2,.92);border:2px solid #9b743d;box-shadow:0 0 60px #000,inset 0 0 40px rgba(0,0,0,.85);text-align:center}
+.settings-panel h1{margin:0 0 28px;font-size:46px;letter-spacing:4px;color:#f6d99b;text-shadow:0 4px 8px #000}
+.setting-row{display:flex;align-items:center;justify-content:space-between;margin:0 0 18px;padding:14px 20px;background:rgba(0,0,0,.35);border:1px solid rgba(155,115,60,.45)}
+.setting-row label{font-size:19px;letter-spacing:3px;color:#ead8aa;min-width:140px;text-align:left}
+.slider-track{display:flex;align-items:center;gap:14px;flex:1;justify-content:flex-end}
+.slider-track input[type=range]{-webkit-appearance:none;width:180px;height:6px;background:linear-gradient(to right,#c49346,#6b3d00);border-radius:3px;outline:none;cursor:pointer}
+.slider-track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#ffe066,#c48a10);border:2px solid #7a4a00;cursor:pointer;box-shadow:0 0 8px rgba(200,150,30,.7)}
+.slider-val{color:#f6d99b;font-size:18px;min-width:36px;text-align:right}
+.toggle-wrap{flex:1;display:flex;justify-content:flex-end}
+.toggle-btn{background:rgba(20,10,4,.8);border:2px solid #7a4a00;color:#a07040;font-family:Georgia,serif;font-size:17px;letter-spacing:2px;padding:8px 28px;cursor:pointer;transition:.15s;min-width:90px}
+.toggle-btn.active{background:rgba(100,60,0,.6);border-color:#d4a030;color:#f6d99b;box-shadow:0 0 14px rgba(200,140,30,.4)}
+.toggle-btn:hover{border-color:#f0c060;color:#ffe080}
+.settings-footer{margin-top:18px;display:flex;justify-content:center}
+
+/* CREDITS PANEL */
+.credits-panel{width:min(640px,90vw);padding:40px 52px 36px;background:rgba(5,3,2,.93);border:2px solid #9b743d;box-shadow:0 0 60px #000,inset 0 0 40px rgba(0,0,0,.85);text-align:center;display:flex;flex-direction:column;align-items:center}
+.credits-emblem{font-size:50px;margin-bottom:8px;filter:drop-shadow(0 0 12px rgba(255,180,50,.7))}
+.credits-title{margin:0 0 6px;font-size:38px;letter-spacing:5px;color:#f6d99b;text-shadow:0 0 20px rgba(255,180,50,.4),0 4px 8px #000}
+.credits-sub{margin:0 0 18px;font-size:17px;color:#c8a86a;letter-spacing:2px}
+.credits-gold{color:#f6d99b;font-style:italic}
+.credits-divider{width:80%;height:1px;background:linear-gradient(to right,transparent,#9b743d,transparent);margin:10px 0 16px}
+.credits-block{margin-bottom:14px}
+.credits-role{margin:0;font-size:13px;letter-spacing:3px;color:#9a7d50;text-transform:uppercase}
+.credits-name{margin:4px 0 0;font-size:21px;color:#f1ddb0;text-shadow:0 2px 6px #000}
+.credits-italic{font-style:italic;color:#f6d99b}
+.credits-year{margin:6px 0 20px;font-size:13px;letter-spacing:2px;color:#7a6040}
 
 .img-btn{width:290px;height:72px;border:none;outline:none;background-color:transparent;background-position:center;background-size:100% 100%;background-repeat:no-repeat;cursor:pointer;color:transparent;font-size:0;transition:.16s}
 .img-btn:hover{filter:brightness(1.22) saturate(1.12)}
