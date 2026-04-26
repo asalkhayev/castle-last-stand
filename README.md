@@ -10,7 +10,7 @@ Fight waves of enemies, choose your battlefield, and survive as long as possible
 
 - Move: WASD or Arrow Keys
 - Attack: Mouse Click or Space
-- Dash: Shift
+- Shock Wave: Shift
 - Survive waves of enemies
 - Choose level and difficulty before starting
 

@@ -25,29 +25,143 @@ ASSETS.levels.forEach((src,i)=>loadImage("level"+i,src));
 loadImage("player",ASSETS.player);
 ASSETS.enemies.forEach((src,i)=>loadImage("enemy"+i,src));
 
+// ─── AUDIO ENGINE ──────────────────────────────────────────────────────────────
+let audioReady=false;
+let sfxVolume=0.7,musicVolume=0.35;
+
+let audioCtx=null;
+let bgmAudio=null;
+
+// Pre-load SFX as Audio elements — works with file:// and http://
+const sfxPool={
+  attack:[],enemyDie:[],shockwave:[]
+};
+const SFX_SRCS={
+  attack:"sounds/sword_swing.wav",
+  enemyDie:"sounds/monster_death.wav",
+  shockwave:"sounds/magic_explosion.wav"
+};
+const POOL_SIZE=4; // allow overlapping same sound
+Object.entries(SFX_SRCS).forEach(([key,src])=>{
+  for(let i=0;i<POOL_SIZE;i++){
+    const a=new Audio(src);
+    a.preload="auto";
+    sfxPool[key].push(a);
+  }
+});
+
+async function initAudio(){
+  if(audioReady)return;
+  audioReady=true;
+}
+function resumeAudio(){}
+
+function playSFX(key,vol=1){
+  const pool=sfxPool[key];
+  if(!pool)return;
+  // find one that's free (ended or not started)
+  let snd=pool.find(a=>a.paused||a.ended);
+  if(!snd){snd=pool[0];snd.currentTime=0;}
+  snd.volume=Math.min(1,sfxVolume*vol);
+  snd.currentTime=0;
+  snd.play().catch(()=>{});
+}
+
+// ─── SOUND FX ─────────────────────────────────────────────────────────────────
+function sndAttack(){playSFX("attack",0.85);}
+function sndHitEnemy(){}
+function sndEnemyDie(){playSFX("enemyDie",0.9);}
+function sndShockwave(){playSFX("shockwave",1.0);}
+function sndPlayerHit(){}
+function sndWaveUp(){}
+function sndGameOver(){}
+function sndVictory(){}
+function sndButtonClick(){}
+
+// ─── BACKGROUND MUSIC ─────────────────────────────────────────────────────────
+const BGM_MENU_VOL=0.12;
+const BGM_GAME_VOL=0.55;
+let bgmFadeTimer=null;
+
+function startBGM(){
+  if(bgmAudio)return;
+  bgmAudio=new Audio("sounds/back.mp3");
+  bgmAudio.loop=true;
+  bgmAudio.volume=BGM_MENU_VOL*musicVolume;
+  bgmAudio.play().catch(()=>{});
+}
+function setBGMVolume(target,durationMs=600){
+  if(!bgmAudio)return;
+  if(bgmFadeTimer)clearInterval(bgmFadeTimer);
+  const start=bgmAudio.volume;
+  const diff=target-start;
+  const steps=30;
+  const stepMs=durationMs/steps;
+  let i=0;
+  bgmFadeTimer=setInterval(()=>{
+    i++;
+    bgmAudio.volume=Math.min(1,Math.max(0,start+diff*(i/steps)));
+    if(i>=steps)clearInterval(bgmFadeTimer);
+  },stepMs);
+}
+function stopBGM(){
+  if(!bgmAudio)return;
+  if(bgmFadeTimer)clearInterval(bgmFadeTimer);
+  bgmAudio.pause();
+  bgmAudio.currentTime=0;
+  bgmAudio=null;
+}
+
+function syncVolumes(){
+  const mv=document.getElementById("music-vol");
+  const sv=document.getElementById("sfx-vol");
+  if(mv){
+    musicVolume=Number(mv.value)/100;
+    const target=gameState==="playing"?BGM_GAME_VOL*musicVolume:BGM_MENU_VOL*musicVolume;
+    if(bgmAudio)bgmAudio.volume=Math.min(1,Math.max(0,target));
+  }
+  if(sv)sfxVolume=Number(sv.value)/100*0.9;
+}
+
+// ─── GAME STATE ───────────────────────────────────────────────────────────────
 let gameState="menu",currentLevel=0,difficulty=1,particlesOn=true;
 let keys={},mouse={x:640,y:360};
 let player,enemies,particles,score,wave,spawnTimer,attackTimer,dashTimer,stamina,lastTime=0;
+let prevWave=1;
 
 function resetGame(){
   player={x:canvas.width/2,y:canvas.height/2,r:24,speed:260,hp:100,maxHp:100,invincible:0};
-  enemies=[];particles=[];score=0;wave=1;spawnTimer=0;attackTimer=0;dashTimer=0;stamina=100;
+  enemies=[];particles=[];score=0;wave=1;prevWave=1;spawnTimer=0;attackTimer=0;dashTimer=0;stamina=100;
 }
 function hideScreens(){screens.forEach(s=>s.classList.remove("show"))}
 function showScreen(id){hideScreens();const el=document.getElementById(id);if(el)el.classList.add("show");if(id==="menu")gameState="menu";updatePauseBtn()}
 function updatePauseBtn(){const btn=document.getElementById("game-pause-btn");if(btn)btn.classList.toggle("visible",gameState==="playing")}
-function startGame(){resetGame();gameState="playing";hideScreens();updatePauseBtn()}
-function pauseGame(){if(gameState==="playing"){gameState="pause";showScreen("pause");updatePauseBtn()}}
-function resumeGame(){gameState="playing";hideScreens();updatePauseBtn()}
-function endGame(win=false){gameState="end";document.getElementById("endTitle").textContent=win?"VICTORY":"GAME OVER";document.getElementById("endText").textContent=`Score: ${score} | Wave: ${wave}`;showScreen("end");updatePauseBtn()}
+async function startGame(){resetGame();gameState="playing";hideScreens();updatePauseBtn();await initAudio();resumeAudio();startBGM();setBGMVolume(BGM_GAME_VOL*musicVolume,700);}
+function pauseGame(){if(gameState==="playing"){gameState="pause";showScreen("pause");updatePauseBtn();setBGMVolume(BGM_MENU_VOL*musicVolume,600);}}
+function resumeGame(){gameState="playing";hideScreens();updatePauseBtn();setBGMVolume(BGM_GAME_VOL*musicVolume,600);}
+function endGame(win=false){
+  gameState="end";
+  document.getElementById("endTitle").textContent=win?"VICTORY":"GAME OVER";
+  document.getElementById("endText").textContent=`Score: ${score} | Wave: ${wave}`;
+  showScreen("end");updatePauseBtn();
+  setBGMVolume(BGM_MENU_VOL*musicVolume,1000);
+  if(win)sndVictory();else sndGameOver();
+}
 
-document.addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key==="Escape"){if(gameState==="playing")pauseGame();else if(gameState==="pause")resumeGame()}if(e.code==="Space"){attack();stamina=Math.max(0,stamina-15);}if(e.key==="Shift"){shockwave();}});
+// ─── INPUT ────────────────────────────────────────────────────────────────────
+document.addEventListener("keydown",e=>{
+  keys[e.key.toLowerCase()]=true;
+  if(e.key==="Escape"){if(gameState==="playing")pauseGame();else if(gameState==="pause")resumeGame();}
+  if(e.code==="Space"){attack();stamina=Math.max(0,stamina-15);}
+  if(e.key==="Shift"){shockwave();}
+});
 document.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener("mousemove",e=>{const r=canvas.getBoundingClientRect();mouse.x=(e.clientX-r.left)*(canvas.width/r.width);mouse.y=(e.clientY-r.top)*(canvas.height/r.height)});
-canvas.addEventListener("mousedown",attack);
+canvas.addEventListener("mousedown",()=>{resumeAudio();attack();});
 
 document.addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;
+  initAudio();startBGM();sndButtonClick();
   const action=b.dataset.action,screen=b.dataset.screen,level=b.dataset.level;
   if(action==="start")startGame();
   if(action==="resume")resumeGame();
@@ -64,17 +178,16 @@ document.addEventListener("click",e=>{
     b.classList.add("selected");
     if(levelScene)levelScene.style.backgroundImage=`linear-gradient(rgba(0,0,0,.34),rgba(0,0,0,.76)), url("${ASSETS.levels[currentLevel]}")`;
   }
+  syncVolumes();
 });
 
 const difficultySelect=document.getElementById("difficulty");
 if(difficultySelect)difficultySelect.addEventListener("change",()=>difficulty=Number(difficultySelect.value));
-
-// Settings sliders
 const musicVol=document.getElementById("music-vol");
 const sfxVol=document.getElementById("sfx-vol");
 const brightnessSlider=document.getElementById("brightness-val");
-if(musicVol)musicVol.addEventListener("input",()=>{document.getElementById("music-vol-display").textContent=musicVol.value});
-if(sfxVol)sfxVol.addEventListener("input",()=>{document.getElementById("sfx-vol-display").textContent=sfxVol.value});
+if(musicVol)musicVol.addEventListener("input",()=>{document.getElementById("music-vol-display").textContent=musicVol.value;syncVolumes();});
+if(sfxVol)sfxVol.addEventListener("input",()=>{document.getElementById("sfx-vol-display").textContent=sfxVol.value;syncVolumes();});
 if(brightnessSlider)brightnessSlider.addEventListener("input",()=>{
   const v=Number(brightnessSlider.value);
   document.getElementById("brightness-display").textContent=v;
@@ -85,13 +198,16 @@ if(brightnessSlider)brightnessSlider.addEventListener("input",()=>{
   }
 });
 
+// ─── GAMEPLAY ─────────────────────────────────────────────────────────────────
 function attack(){
   if(gameState!=="playing"||attackTimer>0)return;
   attackTimer=.3;
+  sndAttack();
   enemies.forEach(en=>{
     if(dist(player.x,player.y,en.x,en.y)<105){
       en.hp--;createSparks(en.x,en.y,8);
-      if(en.hp<=0){score+=10;createSparks(en.x,en.y,18);en.dead=true}
+      if(en.hp<=0){score+=10;createSparks(en.x,en.y,18);en.dead=true;sndEnemyDie();}
+      else{sndHitEnemy();}
     }
   });
   enemies=enemies.filter(e=>!e.dead);
@@ -99,6 +215,7 @@ function attack(){
 function shockwave(){
   if(gameState!=="playing"||stamina<50)return;
   stamina=Math.max(0,stamina-50);
+  sndShockwave();
   enemies.forEach(en=>{score+=10;createSparks(en.x,en.y,22);en.dead=true});
   enemies=[];
   createSparks(player.x,player.y,30);
@@ -107,10 +224,13 @@ function update(dt){
   if(gameState!=="playing")return;
   attackTimer-=dt;dashTimer-=dt;player.invincible-=dt;
   if(dashTimer<=0)stamina=Math.min(100,stamina+dt*18);
-  movePlayer(dt);dash();
+  movePlayer(dt);
   spawnTimer-=dt;if(spawnTimer<=0){spawnEnemy();spawnTimer=Math.max(.4,1.25-wave*.05)/difficulty}
   updateEnemies(dt);updateParticles(dt);
-  if(score>=wave*80)wave++;
+  if(score>=wave*80){
+    wave++;
+    if(wave>prevWave){prevWave=wave;if(wave<=10)sndWaveUp();}
+  }
   if(wave>10)endGame(true);
   if(player.hp<=0)endGame(false);
 }
@@ -120,9 +240,6 @@ function movePlayer(dt){
   const l=Math.hypot(dx,dy)||1;
   player.x+=dx/l*player.speed*dt;player.y+=dy/l*player.speed*dt;
   player.x=clamp(player.x,45,canvas.width-45);player.y=clamp(player.y,60,canvas.height-45);
-}
-function dash(){
-  // Dash removed from shift (shift now triggers shockwave); kept as stub
 }
 function spawnEnemy(){
   const side=Math.floor(Math.random()*4);let x,y;
@@ -134,7 +251,11 @@ function updateEnemies(dt){
   enemies.forEach(en=>{
     const a=Math.atan2(player.y-en.y,player.x-en.x);
     en.x+=Math.cos(a)*en.speed*dt;en.y+=Math.sin(a)*en.speed*dt;
-    if(dist(player.x,player.y,en.x,en.y)<player.r+en.r&&player.invincible<=0){player.hp-=10;player.invincible=.7;createSparks(player.x,player.y,12)}
+    if(dist(player.x,player.y,en.x,en.y)<player.r+en.r&&player.invincible<=0){
+      player.hp-=10;player.invincible=.7;
+      createSparks(player.x,player.y,12);
+      sndPlayerHit();
+    }
   });
 }
 function createSparks(x,y,n){
@@ -143,6 +264,7 @@ function createSparks(x,y,n){
 }
 function updateParticles(dt){particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.9;p.vy*=.9;p.life-=dt});particles=particles.filter(p=>p.life>0)}
 
+// ─── DRAW ─────────────────────────────────────────────────────────────────────
 function draw(){drawBackground();if(gameState==="playing"||gameState==="pause"){drawPlayer();drawEnemies();drawParticles();drawHUD();if(attackTimer>.18)drawSlash()}}
 function drawBackground(){
   const bg=images["level"+currentLevel];
